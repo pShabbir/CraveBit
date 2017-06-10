@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "258541764937",
+    "firebase_url": "https://cravebit.firebaseio.com",
+    "project_id": "cravebit",
+    "storage_bucket": "cravebit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:258541764937:android:1b71e8e60ed4288e",
+        "android_client_info": {
+          "package_name": "com.example.sh.cravebit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "258541764937-9ue110l4ojcvicabk6apgokootkqvg4v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sh.cravebit",
+            "certificate_hash": "d211ef8be2d640ef53518bba100b5ef3bdc96715"
+          }
+        },
+        {
+          "client_id": "258541764937-b8tln7cjncml6rq8qnah2g12035bv1pn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIleZ2qlO7QAfeBc-gtA_nFiyyCXFUS-Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "258541764937-b8tln7cjncml6rq8qnah2g12035bv1pn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

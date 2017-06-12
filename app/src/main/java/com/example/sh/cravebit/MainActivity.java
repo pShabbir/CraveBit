@@ -1,7 +1,11 @@
 package com.example.sh.cravebit;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +28,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,18 +45,25 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean flag = true;
 
+    private DatabaseReference mDatabase;
+
+    private String uid,name,email;
+
+    private User author;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
-//        Typeface typeface=getResources().getFont(R.font.Pacifico);
         TextView txt = (TextView)findViewById(R.id.textView);
         txt.setTypeface(custom_font);
 
 
-//        FirebaseApp.initializeApp(this);
+
+
 
         googleSignIn = (SignInButton)findViewById(R.id.googleSignIn);
         // Configure Google Sign In
@@ -154,4 +166,58 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
+
+    class userstoring extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            name = user.getDisplayName();
+            email = user.getEmail();
+            uid = user.getUid();
+            Uri imageUrl = user.getPhotoUrl();
+            SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("name",name);
+            editor.putString("email",email);
+            editor.putString("uid",uid);
+            editor.putString("imageUrl",imageUrl.toString());
+            editor.apply();
+            author = new User(name,email,uid,imageUrl.toString());
+
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            return null;
+        }
+    }
+}
+
+class User {
+
+    public String username;
+    public String email;
+    public String udi;
+    public String urlToProfileImage;
+
+
+    public User() {
+        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
+
+    public User(String username, String email,String uid,String urlToProfileImage) {
+        this.username = username;
+        this.email = email;
+        this.udi = uid;
+        this.urlToProfileImage = urlToProfileImage;
+//        this.likeTo = likeTo;
+    }
+
 }

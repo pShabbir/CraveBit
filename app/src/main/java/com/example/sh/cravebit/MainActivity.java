@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean flag = true;
 
+    FirebaseDatabase firebaseDatabase;
     private DatabaseReference mDatabase;
 
     private String uid,name,email;
 
     private User author;
+
+    ProgressBar progressBar;
 
 
     @Override
@@ -60,9 +65,6 @@ public class MainActivity extends AppCompatActivity {
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
         TextView txt = (TextView)findViewById(R.id.textView);
         txt.setTypeface(custom_font);
-
-
-
 
 
         googleSignIn = (SignInButton)findViewById(R.id.googleSignIn);
@@ -95,9 +97,8 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 user = FirebaseAuth.getInstance().getCurrentUser();
                 if(firebaseAuth.getCurrentUser()!=null && flag){
-                   // new userStoring().execute();
-                    Intent i=new Intent(MainActivity.this,Home.class);
-                    startActivity(i);
+                    Log.i("Shabbir","This is unique");
+                    storeuser();
                     flag = false;
                     finish();
                 }
@@ -106,6 +107,32 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void storeuser(){
+        // Getting User details
+        name = user.getDisplayName();
+        email = user.getEmail();
+        uid = user.getUid();
+        Uri imageUrl = user.getPhotoUrl();
+        SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("name",name);
+        editor.putString("email",email);
+        editor.putString("uid",uid);
+        editor.putString("imageUrl",imageUrl.toString());
+        editor.apply();
+        author = new User(name,email,uid,imageUrl.toString());
+
+        // Creating the user record in Firebase
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("users");
+        myRef.child(uid).setValue(author);
+
+        //Calling home activity
+        Intent i=new Intent(this,Home.class);
+        startActivity(i);
+
+
+    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -166,45 +193,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-    class userstoring extends AsyncTask<Void,Void,Void>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            name = user.getDisplayName();
-            email = user.getEmail();
-            uid = user.getUid();
-            Uri imageUrl = user.getPhotoUrl();
-            SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("name",name);
-            editor.putString("email",email);
-            editor.putString("uid",uid);
-            editor.putString("imageUrl",imageUrl.toString());
-            editor.apply();
-            author = new User(name,email,uid,imageUrl.toString());
-
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            return null;
-        }
-    }
 }
 
 class User {
 
     public String username;
     public String email;
-    public String udi;
+    public String uid;
     public String urlToProfileImage;
 
 
@@ -215,7 +210,7 @@ class User {
     public User(String username, String email,String uid,String urlToProfileImage) {
         this.username = username;
         this.email = email;
-        this.udi = uid;
+        this.uid = uid;
         this.urlToProfileImage = urlToProfileImage;
 //        this.likeTo = likeTo;
     }

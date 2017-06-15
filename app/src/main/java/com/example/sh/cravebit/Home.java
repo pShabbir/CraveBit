@@ -68,12 +68,12 @@ public class Home extends AppCompatActivity {
     public void placeList(View view) {
         Intent i=new Intent(this,PlaceList.class);
         startActivity(i);
-        finish();
+
     }
 
     public void foodList(View view) {
         Intent i=new Intent(this,FoodList.class);
         startActivity(i);
-        finish();
+
     }
 }

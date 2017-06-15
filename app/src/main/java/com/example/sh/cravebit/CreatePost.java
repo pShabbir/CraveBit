@@ -34,7 +34,7 @@ import java.io.InputStream;
 
 public class CreatePost extends AppCompatActivity {
 
-    private static final int RESULT_LOAD_IMG = 100;
+    private static final int PICK_IMAGE_REQUEST = 1;
 
     EditText title,dec,price;
     RatingBar ratingBar;
@@ -54,7 +54,13 @@ public class CreatePost extends AppCompatActivity {
         mStorage = FirebaseStorage.getInstance();
         progressBar = (ProgressBar)findViewById(R.id.progressBar2);
         database = FirebaseDatabase.getInstance();
-        CheckUserPermsions();
+        imageView=(ImageView)findViewById(R.id.postImage);
+        title = (EditText)findViewById(R.id.title);
+        dec  = (EditText)findViewById(R.id.description);
+        price = (EditText)findViewById(R.id.price);
+        ratingBar = (RatingBar)findViewById(R.id.ratingBar);
+
+        pickImage();
 
         if(flag){
             Toast.makeText(this,"Try again some internal failure",Toast.LENGTH_LONG).show();
@@ -63,10 +69,6 @@ public class CreatePost extends AppCompatActivity {
 
         progressBar.setVisibility(View.GONE);
 
-        title = (EditText)findViewById(R.id.title);
-        dec  = (EditText)findViewById(R.id.description);
-        price = (EditText)findViewById(R.id.price);
-        ratingBar = (RatingBar)findViewById(R.id.ratingBar);
 
        imageView.setVisibility(View.VISIBLE);
        title.setVisibility(View.VISIBLE);
@@ -88,13 +90,27 @@ public class CreatePost extends AppCompatActivity {
         MyPost  myPost = new MyPost(postId,author,sprice,postImageUrl,description,stitle,userID,rating);
         DatabaseReference databaseReference = database.getReference("posts").child(postId);
         databaseReference.setValue(myPost);
+        onBackPressed();
 
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent i =new Intent(this,FoodList.class);
+        startActivity(i);
+        finish();
+    }
+
     public void pickImage(){
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+//        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//        photoPickerIntent.setType("image/*");
+//        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
+        Intent intent = new Intent();
+        // Show only images, no videos or anything else
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        // Always show the chooser (if there are multiple options available)
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
     //Checking user permission
@@ -168,7 +184,7 @@ public class CreatePost extends AppCompatActivity {
                  final Uri imageUri = data.getData();
                  final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                  selectedImage = BitmapFactory.decodeStream(imageStream);
-                 imageView=(ImageView)findViewById(R.id.postImage);
+
                  imageView.setImageBitmap(selectedImage);
 
                  //Call for uploading image on FireBase
@@ -192,6 +208,32 @@ class MyPost {
     public String description;
     public String title;
     public String userID;
+
+    public String getPostImageUrl() {
+        return postImageUrl;
+    }
+
+    public String getAuthor() {
+
+        return author;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
     public int rating;
 
     public MyPost(String postId, String author, int price, String postImageUrl, String description, String title, String userID, int rating) {

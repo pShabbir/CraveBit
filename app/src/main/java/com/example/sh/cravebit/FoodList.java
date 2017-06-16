@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -28,6 +29,7 @@ public class FoodList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PostAdapter mAdapter;
     private ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +64,7 @@ public class FoodList extends AppCompatActivity {
         });
 
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("posts");
-        ref.addListenerForSingleValueEvent(
+        ref.limitToLast(10).addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -82,7 +84,7 @@ public class FoodList extends AppCompatActivity {
     public void createPost(View view) {
         Intent i=new Intent(this,CreatePost.class);
         startActivity(i);
-        finish();
+      //  finish();
     }
     private void collectPhoneNumbers(Map<String,Object> users) {
 
@@ -102,7 +104,7 @@ public class FoodList extends AppCompatActivity {
             String postId = (String) singleUser.get("postId");
             String postImageUrl = (String) singleUser.get("postImageUrl");
             int price =  (int)(long) singleUser.get("price");
-            int rating = (int)(long) singleUser.get("rating");
+            Object rating =  singleUser.get("rating");
             String title = (String) singleUser.get("title");
             String userID = (String) singleUser.get("userID");
 

@@ -8,13 +8,17 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -28,7 +32,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -45,7 +52,11 @@ public class CreatePost extends AppCompatActivity {
     private FirebaseDatabase database;
     String postId,userID,author,postImageUrl,description,stitle;
     int sprice;
+    float myrating=0;
     boolean flag;
+    Uri imageUri;
+
+    private Button submit;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +70,9 @@ public class CreatePost extends AppCompatActivity {
         dec  = (EditText)findViewById(R.id.description);
         price = (EditText)findViewById(R.id.price);
         ratingBar = (RatingBar)findViewById(R.id.ratingBar);
+        submit = (Button)findViewById(R.id.submit);
 
-        pickImage();
+       // pickImage();
 
         if(flag){
             Toast.makeText(this,"Try again some internal failure",Toast.LENGTH_LONG).show();
@@ -76,50 +88,24 @@ public class CreatePost extends AppCompatActivity {
        price.setVisibility(View.VISIBLE);
        ratingBar.setVisibility(View.VISIBLE);
 
+        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                myrating =  rating;
+            }
+        });
 
 
 
-    }
-
-    public void submit(View view){
-        stitle = title.getText().toString();
-        description = dec.getText().toString();
-        sprice = Integer.parseInt(price.getText().toString());
-        int rating = ratingBar.getNumStars();
-
-        MyPost  myPost = new MyPost(postId,author,sprice,postImageUrl,description,stitle,userID,rating);
-        DatabaseReference databaseReference = database.getReference("posts").child(postId);
-        databaseReference.setValue(myPost);
-        onBackPressed();
 
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent i =new Intent(this,FoodList.class);
-        startActivity(i);
-        finish();
-    }
-
-    public void pickImage(){
-//        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-//        photoPickerIntent.setType("image/*");
-//        startActivityForResult(photoPickerIntent, RESULT_LOAD_IMG);
-        Intent intent = new Intent();
-        // Show only images, no videos or anything else
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        // Always show the chooser (if there are multiple options available)
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-    }
-
-    //Checking user permission
     void CheckUserPermsions(){
         if ( Build.VERSION.SDK_INT >= 23){
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) !=
                     PackageManager.PERMISSION_GRANTED  ){
                 requestPermissions(new String[]{
-                                android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                Manifest.permission.READ_EXTERNAL_STORAGE},
                         REQUEST_CODE_ASK_PERMISSIONS);
                 return ;
             }
@@ -130,6 +116,9 @@ public class CreatePost extends AppCompatActivity {
     }
     //get acces to location permsion
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
@@ -146,53 +135,155 @@ public class CreatePost extends AppCompatActivity {
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-    // End here
 
-    public void uploadImage(Uri uri){
-        StorageReference storageRef = mStorage.getReference();
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        author = sharedPreferences.getString("name","unkonwn");
-        userID = sharedPreferences.getString("uid","qwertyuiop123456");
-        postId= database.getReference("users").push().getKey();
+    public void submit(View view){
+        stitle = title.getText().toString();
+        description = dec.getText().toString();
+        sprice = Integer.parseInt(price.getText().toString());
+        progressBar.setVisibility(View.VISIBLE);
+        new Demo().execute();
 
-        StorageReference riversRef = storageRef.child("images").child(userID).child(postId+".jpg");
 
-        riversRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-               // downloadUrl = taskSnapshot.getDownloadUrl();
-                postImageUrl = taskSnapshot.getDownloadUrl().toString();
-//                myFlag = true;
-                Toast.makeText(getApplicationContext(),"This is done"+postImageUrl,Toast.LENGTH_LONG).show();
+//        MyPost  myPost = new MyPost(postId,author,sprice,postImageUrl,description,stitle,userID,rating);
+//        DatabaseReference databaseReference = database.getReference("posts").child(postId);
+//        databaseReference.setValue(myPost);
+//        onBackPressed();
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(),"This has failed",Toast.LENGTH_LONG).show();
-                flag = false;
-            }
-        });
     }
+
+    @Override
+    public void onBackPressed() {
+//        Intent i =new Intent(this,FoodList.class);
+//        startActivity(i);
+        finish();
+    }
+
+
+    public void pick(View view) {
+       // pickImage();
+        CheckUserPermsions();
+
+    }
+
+
+    public void pickImage(){
+        Intent intent = new Intent();
+        // Show only images, no videos or anything else
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        // Always show the chooser (if there are multiple options available)
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+    }
+
+
+    class Demo extends AsyncTask<Void,Void,Void>{
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //
+//            InputStream imageStream = null;
+//            try {
+//                imageStream = getContentResolver().openInputStream(imageUri);
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+//            selectedImage = BitmapFactory.decodeStream(imageStream);
+            //
+            imageView.setDrawingCacheEnabled(true);
+            imageView.buildDrawingCache();
+            Bitmap bitmap = imageView.getDrawingCache();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 0, baos);
+            Log.d("Shabbir",bitmap.getHeight()+"");
+            byte[] data = baos.toByteArray();
+
+            StorageReference storageRef = mStorage.getReference();
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            author = sharedPreferences.getString("name","unkonwn");
+            userID = sharedPreferences.getString("uid","qwertyuiop123456");
+            postId= database.getReference("users").push().getKey();
+
+
+            StorageReference riversRef = storageRef.child("images").child(userID).child(postId+".jpg");
+
+            UploadTask uploadTask = riversRef.putBytes(data);
+            uploadTask.addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle unsuccessful uploads
+                }
+            }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+                    postImageUrl =""+ taskSnapshot.getDownloadUrl();
+                    MyPost  myPost = new MyPost(postId,author,sprice,postImageUrl,description,stitle,userID,myrating);
+                    DatabaseReference databaseReference = database.getReference("posts").child(postId);
+                    databaseReference.setValue(myPost);
+                    onBackPressed();
+
+                }
+            });
+            return null;
+        }
+    }
+
+    class ImageLoading extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            InputStream imageStream = null;
+            try {
+                imageStream = getContentResolver().openInputStream(imageUri);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            selectedImage = BitmapFactory.decodeStream(imageStream);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            imageView.setImageBitmap(selectedImage);
+
+        }
+    }
+
     @Override
     protected void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
 
 
         if (resultCode == RESULT_OK) {
-            try {
-                 final Uri imageUri = data.getData();
-                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                 selectedImage = BitmapFactory.decodeStream(imageStream);
+            imageUri = data.getData();
+           // setPic();
+//             InputStream imageStream = null;
+//            try {
+//                imageStream = getContentResolver().openInputStream(imageUri);
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+//            selectedImage = BitmapFactory.decodeStream(imageStream);
+                // imageView.setImageBitmap(selectedImage);
 
-                 imageView.setImageBitmap(selectedImage);
+//            Picasso.with(this)
+//                    .load(imageUri)
+//                    .placeholder(R.mipmap.placeholder)
+//                    .error(R.mipmap.a1)
+//                    .fit()
+//                    .into(imageView);
 
-                 //Call for uploading image on FireBase
-                 uploadImage(imageUri);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Toast.makeText(CreatePost.this, "Something went wrong", Toast.LENGTH_LONG).show();
-            }
+            new ImageLoading().execute();
+
+//            Log.d("Shabbir",""+selectedImage.getByteCount());
+//
+//            Toast.makeText(CreatePost.this, ""+selectedImage.getHeight(), Toast.LENGTH_LONG).show();
+
+            // Toast.makeText(CreatePost.this, ""+selectedImage.getByteCount(), Toast.LENGTH_LONG).show();
 
         }else {
             Toast.makeText(CreatePost.this, "You haven't picked Image", Toast.LENGTH_LONG).show();
@@ -208,6 +299,7 @@ class MyPost {
     public String description;
     public String title;
     public String userID;
+    public Object rating;
 
     public String getPostImageUrl() {
         return postImageUrl;
@@ -230,13 +322,13 @@ class MyPost {
         return title;
     }
 
-    public int getRating() {
+    public Object getRating() {
         return rating;
     }
 
-    public int rating;
 
-    public MyPost(String postId, String author, int price, String postImageUrl, String description, String title, String userID, int rating) {
+
+    public MyPost(String postId, String author, int price, String postImageUrl, String description, String title, String userID, Object rating) {
         this.postId = postId;
         this.author = author;
         this.price = price;

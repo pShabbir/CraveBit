@@ -17,16 +17,26 @@ import com.sdsmdg.harjot.rotatingtext.models.Rotatable;
 
 public class Home extends AppCompatActivity {
 
+    Typeface typeface,typeface2;
+    TextView txt;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
-        Typeface typeface2 = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
+        typeface = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
+        typeface2 = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
+        txt = (TextView)findViewById(R.id.upperText);
+        setStyle();
 
-        TextView txt = (TextView)findViewById(R.id.upperText);
+    }
+
+    public void setStyle(){
         txt.setTypeface(typeface);
 
         RotatingTextWrapper rotatingTextWrapper = (RotatingTextWrapper) findViewById(R.id.custom_switcher);
@@ -47,12 +57,12 @@ public class Home extends AppCompatActivity {
         TextView tx2t = (TextView)findViewById(R.id.lowerText);
         tx2t.setTypeface(typeface);
 
-         rotatingTextWrapper = (RotatingTextWrapper) findViewById(R.id.custom_switcher2);
+        rotatingTextWrapper = (RotatingTextWrapper) findViewById(R.id.custom_switcher2);
         rotatingTextWrapper.setSize(50);
         rotatingTextWrapper.setTypeface(typeface2);
 
 
-         rotatable = new Rotatable(Color.parseColor("#FFA036"), 1000, "Click Here", "To Share","Your Joint");
+        rotatable = new Rotatable(Color.parseColor("#FFA036"), 1000, "Click Here", "To Share","Your Joint");
         rotatable.setSize(50);
         rotatable.setAnimationDuration(500);
         rotatable.setTypeface(typeface);

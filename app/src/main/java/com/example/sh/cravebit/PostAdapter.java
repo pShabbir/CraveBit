@@ -102,7 +102,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.MyViewHolder> 
 //        holder.readmore.setText(post.getDescription());
         holder.price.setText(String.valueOf(post.getPrice()));
 //        holder.ratingBar.setNumStars(post.getRating());
-        holder.rate.setText(post.getRating()+"");
+        holder.rate.setText(String.valueOf(post.getRating()));
 
 //        GlideApp.with(holder.imageView.getContext())
 //                .load(post.getPostImageUrl())

@@ -18,11 +18,13 @@
             android:onClick="foodList"
             >
             <ImageView
+                android:id="@+id/a1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:srcCompat="@mipmap/a1"
                 android:scaleType="centerCrop"/>
             <ImageView
+                android:id="@+id/a2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -56,11 +58,13 @@
             android:onClick="placeList">
 
             <ImageView
+                android:id="@+id/a3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@mipmap/a2"
                 android:scaleType="centerCrop"/>
             <ImageView
+                android:id="@+id/a4"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"

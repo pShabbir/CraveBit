@@ -74,11 +74,6 @@ public class CreatePost extends AppCompatActivity {
 
        // pickImage();
 
-        if(flag){
-            Toast.makeText(this,"Try again some internal failure",Toast.LENGTH_LONG).show();
-            finish();
-        }
-
         progressBar.setVisibility(View.GONE);
 
 
@@ -142,25 +137,21 @@ public class CreatePost extends AppCompatActivity {
         sprice = Integer.parseInt(price.getText().toString());
         progressBar.setVisibility(View.VISIBLE);
         new Demo().execute();
-
-
-//        MyPost  myPost = new MyPost(postId,author,sprice,postImageUrl,description,stitle,userID,rating);
-//        DatabaseReference databaseReference = database.getReference("posts").child(postId);
-//        databaseReference.setValue(myPost);
-//        onBackPressed();
-
     }
 
     @Override
-    public void onBackPressed() {
-//        Intent i =new Intent(this,FoodList.class);
-//        startActivity(i);
+    public void onBackPressed()
+    {
         finish();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Runtime.getRuntime().gc();
+    }
 
-    public void pick(View view) {
-       // pickImage();
+    public void pick(View view){
         CheckUserPermsions();
 
     }
@@ -193,7 +184,7 @@ public class CreatePost extends AppCompatActivity {
             imageView.buildDrawingCache();
             Bitmap bitmap = imageView.getDrawingCache();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 0, baos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
             Log.d("Shabbir",bitmap.getHeight()+"");
             byte[] data = baos.toByteArray();
 
@@ -338,4 +329,7 @@ class MyPost {
         this.userID = userID;
         this.rating = rating;
     }
+
+
+
 }

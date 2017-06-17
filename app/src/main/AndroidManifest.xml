@@ -2,8 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.sh.cravebit">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,7 +22,8 @@
         <activity android:name=".Home" />
         <activity android:name=".FoodList" />
         <activity android:name=".PlaceList" />
-        <activity android:name=".CreatePost"></activity>
+        <activity android:name=".CreatePost" />
+        <activity android:name=".BottomNavigation"></activity>
     </application>
 
 </manifest>

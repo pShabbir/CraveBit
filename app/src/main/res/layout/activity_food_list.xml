@@ -28,7 +28,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:background="#1d1add"
         android:scaleType="centerCrop"
         app:srcCompat="@mipmap/ficon"
         android:layout_marginTop="508dp"

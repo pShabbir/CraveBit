@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.BounceInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,26 +18,18 @@ import com.sdsmdg.harjot.rotatingtext.models.Rotatable;
 
 public class Home extends AppCompatActivity {
 
-    Typeface typeface,typeface2;
-    TextView txt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
+        Typeface typeface,typeface2;
+        TextView txt;
         typeface = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
         typeface2 = Typeface.createFromAsset(getAssets(), "fonts/pacifico.ttf");
         txt = (TextView)findViewById(R.id.upperText);
-        setStyle();
 
-    }
-
-    public void setStyle(){
         txt.setTypeface(typeface);
 
         RotatingTextWrapper rotatingTextWrapper = (RotatingTextWrapper) findViewById(R.id.custom_switcher);
@@ -69,8 +62,9 @@ public class Home extends AppCompatActivity {
         rotatable.setInterpolator(new BounceInterpolator());
 
         rotatingTextWrapper.setContent("?", rotatable);
-    }
 
+
+    }
     public void signOut(View view) {
         FirebaseAuth.getInstance().signOut();
     }
@@ -78,12 +72,10 @@ public class Home extends AppCompatActivity {
     public void placeList(View view) {
         Intent i=new Intent(this,PlaceList.class);
         startActivity(i);
-
     }
 
     public void foodList(View view) {
         Intent i=new Intent(this,FoodList.class);
         startActivity(i);
-
     }
 }

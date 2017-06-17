@@ -2,6 +2,7 @@ package com.example.sh.cravebit;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -29,12 +30,11 @@ public class FoodList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PostAdapter mAdapter;
     private ProgressBar progressBar;
-
+    private Map<String,Object> map;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food_list);
-
         progressBar=(ProgressBar)findViewById(R.id.progressBar);
 
         recyclerView = (RecyclerView)findViewById(R.id.recycler_view);
@@ -63,21 +63,53 @@ public class FoodList extends AppCompatActivity {
             }
         });
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("posts");
-        ref.limitToLast(10).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        //Get map of users in datasnapshot
-                        collectPhoneNumbers((Map<String,Object>) dataSnapshot.getValue());
-                        mAdapter.notifyDataSetChanged();
-                    }
+        new Demo().execute();
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        //handle databaseError
-                    }
-                });
+    }
+
+    class Demo extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("posts");
+            ref.limitToLast(20).addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //Get map of users in datasnapshot
+                            map = (Map<String,Object>) dataSnapshot.getValue();
+                            collectPhoneNumbers(map);
+                            mAdapter.notifyDataSetChanged();
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            //handle databaseError
+                        }
+                    });
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+           // collectPhoneNumbers(map);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent i=new Intent(this,Home.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new Demo().execute();
+
 
     }
 
@@ -86,6 +118,7 @@ public class FoodList extends AppCompatActivity {
         startActivity(i);
       //  finish();
     }
+
     private void collectPhoneNumbers(Map<String,Object> users) {
 
 
